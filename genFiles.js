@@ -1,4 +1,3 @@
-const code_module_path = __dirname + `/code_modules`;
 const fs = require('fs');
 
 const FileNameGen = ()=>{
@@ -16,12 +15,13 @@ const FileNameGen = ()=>{
 return namearr.join('');
 
 }
-let id = FileNameGen();
-const DeclareFiles = async (extension, code) =>{
-    await fs.writeFileSync(`${code_module_path}/${id}.${extension}`, code);
-    return `${code_module_path}^$#^${id}.${extension}`
+
+const genFiles =(extension, code) =>{
+    let id =FileNameGen();
+    fs.writeFileSync(`${__dirname}/code/${id}.${extension}`, code);
+    return id;
 };
 
 module.exports = {
-    DeclareFiles,
+    genFiles,
 };
