@@ -1,60 +1,69 @@
-const { DeclareFiles } = require("./DeclareFiles.js");
-const { execJS } = require("./exec_modules/execJS.js");
-const { execCPP } = require("./exec_modules/execCPP.js");
-const { execPY } = require("./exec_modules/execPY.js");
-const { execCH } = require("./exec_modules/execCH.js");
-const { execC } = require("./exec_modules/execC.js");
-const cors = require('cors')
-
-const express = require("express");
+const express = require('express');
 const app = express();
 const PORT = 6969;
+const {genFiles} = require('./genFiles.js');
+const {execCPP} = require('./exec_modules/execCPP.js');
+const {execJS} = require('./exec_modules/execJS.js')
+const {execCH} = require('./exec_modules/execCH.js')
+const {execPY} = require('./exec_modules/execPY.js')
+const {execC} = require('./exec_modules/execC.js')
+const cors = require('cors')
+app.listen(PORT, ()=>{
+    console.log(`server online at port: ${PORT}`)
+});
 
 app.use(cors())
-app.listen(PORT, () => {
-  console.log(`APP's Online! at port ${PORT}`);
-});
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  return res.json({ server: "running" });
-});
 
-app.post(`/run`, async (req, res) => {
-  const { language = "default", code } = req.query;
-  if (code === undefined || code == "" || code === null) {
-    return res.status(400).json({ err: "empty code" });
-  } else {
-    try {
-      const filePath = await DeclareFiles(language, code);
+app.get("/", (req, res)=>{
+return res.json({goodbye: 'world'})
+})
 
-      let fileExtention = filePath.split(".")[1];
-      console.log(fileExtention)
-      if(fileExtention == 'js'){
-        let output = await execJS(filePath);
-        return res.json({ output });
-      }
-      else if(fileExtention == 'cpp'){
-        let output = await execCPP(filePath);
-        return res.json({ output });
-      }
-      else if(fileExtention == 'py'){
-        let output = await execPY(filePath);
-        return res.json({ output });
-      }
-      else if(fileExtention == 'ch'){
-        let output = await execCH(filePath);
-        return res.json({ output });
-      }
-      else if(fileExtention == 'c'){
-        let output = await execC(filePath);
-        return res.json({ output });
-      }
+app.post('/run', async (req, res)=>{
+     console.log(req.body)
+    const [language, code] = [req.body.language, req.body.code];
+    // if(code === undefined){
+    //     return res.
+    //     json({err:'undefined code in body req'})
+    // }
+    // else if(language ===''){
+    //     return res.
+    //     json({err:'undefined language in body req'})
+    // }
+    try{
+        let File = genFiles(language, code)
+        console.log(File)
+        if(language == 'js'){
+            let output = await execJS(File)
+            return res.json({output})
+        }
+        if(language == 'cpp'){
+            let output = await execCPP(File)
+            return res.json({output})
+        }
+        if(language == 'cs'){
+            let output = await execCH(File)
+            return res.json({output})
+        }
+        
+        if(language == 'py'){
+            let output = await execPY(File)
+            return res.json({output})
+        }
+        
+        if(language == 'c'){
+            let output = await execC(File)
+            console.log(output)
+            return res.json({output})
+        }
+        
+        
+        
 
-      
-      // return res.json({language, code})
-    } catch (err) {
-      res.status(500).json({ err });
-      console.log(err);
     }
-  }
-});
+    catch(err){
+        res.status(500).json({err})
+    }
+})
