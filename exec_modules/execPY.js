@@ -1,11 +1,8 @@
 const {exec} = require('child_process');
-const execPY = (raasta) =>{
-    const filePath = raasta.split(`^$#^`)
-    //?   filePath[0] = path
-    //?   filePath[1] = filename(with extension)
-    console.log(`cd ${filePath[0]} && py ${filePath[1]}`)
+const execPY = (input) =>{
+    console.log(`cd code && python ${input}.py`)
     return new Promise((resolve, reject)=>{
-        exec(`cd ${filePath[0]} && py ${filePath[1]}`, (error, stdout, stderr)=>{
+         exec(`cd code && python ${input}.py`, (error, stdout, stderr)=>{
             if(error) {
                 reject({error, stderr});
             }
@@ -16,6 +13,7 @@ const execPY = (raasta) =>{
         })
     })
     }
+    
 module.exports = {
     execPY,
 };
