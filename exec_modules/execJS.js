@@ -1,11 +1,8 @@
 const {exec} = require('child_process');
-const execJS = (raasta) =>{
-    const filePath = raasta.split(`^$#^`)
-    //?   filePath[0] = path
-    //?   filePath[1] = filename(with extension)
-    console.log(`cd ${filePath[0]} && node ${filePath[1]}`)
+const execJS = (input) =>{
+    console.log(`cd code && node ${input}`)
     return new Promise((resolve, reject)=>{
-        exec(`cd ${filePath[0]} && node ${filePath[1]}`, (error, stdout, stderr)=>{
+        exec(`cd code && node ${input}.js`, (error, stdout, stderr)=>{
             if(error) {
                 reject({error, stderr});
             }
@@ -16,6 +13,7 @@ const execJS = (raasta) =>{
         })
     })
     }
+    
 module.exports = {
     execJS,
 };
