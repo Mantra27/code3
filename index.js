@@ -36,20 +36,16 @@ app.post('/run', async (req, res)=>{
         return res.json({err: "empty code module"})
     }
     if(language=='js' && detectLang(code)!=='JavaScript'){
-        console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-        return res.json({tip: "make sure your language and code are the same", detectedLanguage: 'js'})
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
     }
     if(language=='cpp' && detectLang(code)!=='C++'){
-        console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-        return res.json({tip: "make sure your language and code are the same", detectedLanguage: 'cpp'})
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
     }
     if(language=='py' && detectLang(code)!=='Python'){
-        console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-        return res.json({tip: "make sure your language and code are the same", detectedLanguage: 'py'})
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
     }
     if(language=='c' && detectLang(code)!=='C'){
-        console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-        return res.json({tip: "make sure your language and code are the same", detectedLanguage: 'c'})
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
     }
     try{
         let File = genFiles(language, code)
