@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ACE in Action</title>
+    <style type="text/css" media="screen">
+      body {
+        background-color: #272822;
+        font-family: Hack, monospace;
+      }
+      #editor {
+
+        position: absolute;
+        top: 70px;
+        right: 0;
+        bottom: 45%;
+        left: 0;
+      }
+      .button {
+        position: absolute;
+        font-family: Hack, monospace;
+        border-radius: 2px;
+        transition: 0.3s;
+        background-color: #323330;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+      }
+      .button:hover {
+        color: black;
+        background-color: white;
+        transition: 0.3s;
+      }
+      #output {
+        color: antiquewhite;
+        font-size: 20px;
+        position: absolute;
+        margin-top: 55vh;
+        width: 100%;
+        height: 700px;
+      }
+      #lang {
+        border-radius: 20px;
+        font-family: Hack, monospace;
+        border-radius: 2px;
+        transition: 0.3s;
+        background-color: #323330;
+        border: none;
+        color: white;
+        padding: 8px 17px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 5px;
+        margin-left: 150px;
+        background-color: #272822;
+        font-size: 20px;
+      }
+      #lang:hover {
+        color: white;
+        background-color: #323330;
+        transition: 0.3s;
+      }
+
+
+      div.opacity-provider
+{
+    font-family: Hack, monospace;
+    display:none;
+    top:0;
+    left:0;
+    min-width:100%;
+    min-height:100%;/*these make the opacity provider fill the screen*/
+    opacity:0.4;
+    filter:alpha(opacity=50);  
+    position:absolute;
+     background:black;
+  z-index:100;  
+}
+
+div.popup-data
+{
+    color: white;
+    font-family: Hack, monospace;
+    width:600px;
+    height:200px;
+    display:none;
+    background-color: #323330;
+    z-index:101;   /*must be greater than the opacity provider*/   
+    position:absolute;  
+
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    
+    margin: auto;
+    
+}
+#close{
+    color:red;
+    font-family: Hack, monospace;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    right: 5px;
+    font-size: 20px;
+    
+}
+
+#show{
+        position: absolute;
+        font-family: Hack, monospace;
+        border-radius: 2px;
+        transition: 0.3s;
+        background-color: #323330;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        left: 180px;
+}
+
+#show:hover{
+    color: black;
+        background-color: white;
+        transition: 0.3s;
+        
+}
+#popdata{
+font-size:17px;
+text-align: center;
+vertical-align: middle;
+line-height: 75px;
+}
+
+.infocolor{
+  color:rgb(211, 15, 15);
+}
+    </style>
+  </head>
+  <body>
+
+    <button id="btn" class="button">compile();</button>
+    <label id="lang" for="cars"></label>
+    <select name="lang" id="lang">
+      <option value="js">JavaScript</option>
+        <option value="cpp">C++</option>
+          <option value="py">Python</option>
+            <option value="c">C</option>
+
+    </select>
+
+    <button href="#" id="show">options();</button>
+    
+    <div id='optionsdata' class="popup popup-data">
+        <div id='popdata'>
+          <!-- QP4931H6734J7641612323738574G.js -->
+          <a>generate.file.name("</a><a id='filecolor' class='infocolor'>compile once</a><a>")</a>
+          <br>
+          <a>user.ip("</a><a id='ipcolor' class='infocolor'></a><a>")</a>
+
+        </div>
+        <a href="#" id="close" style="text-decoration: none">X</a>    
+    </div>
+    
+    <div class="popup opacity-provider">
+    
+    </div>
+
+    <div id="editor">
+    </div>
+
+    <div id="output">output will be displayed here;</div>
+
+    <script
+
+      src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"
+      integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+
+    ></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <script>
+      var socket = io();
+      var editor = ace.edit("editor"); //from #editor ID
+      editor.setTheme("ace/theme/monokai");
+      editor.setValue(`const func = ()=>{
+    for(let count=0; count<10; count++){
+    console.log('hola~', count)
+    }
+}
+func();`);
+      let ip = $.getJSON("https://api.db-ip.com/v2/free/self", function (data) {
+        console.log(JSON.stringify(data, null, 2));
+        return JSON.stringify(data, null, 2);
+      });
+
+      $(function() {
+    $("#show").click(function() {
+        $("div.popup").show();
+
+        return false;
+    });
+    $("#close").click(function() {
+        $("div.popup").hide();
+        return false;
+    });
+});
+
+      socket.emit("ip", ip);
+
+      socket.on('iptext', (e)=>{
+        document.getElementById('ipcolor').innerText = e;
+      })
+
+      if (typeof window.orientation !== "undefined") {
+        document.getElementById("output").style.fontSize = "40px";
+          document.getElementById("output").style.position = "absolute";
+            document.getElementById("output").style.marginTop = "51vh";
+              document.getElementById("output").style.width = "100%";
+                document.getElementById("output").style.height = "700px";
+
+        document.getElementById("btn").style.fontSize = "40px";
+          document.getElementById("editor").style.fontSize = "30px";
+            document.getElementById("editor").style.top = "100px";
+
+        document.querySelector("select").style.marginLeft = "460px";
+          document.querySelector("select").style.fontSize = "35px";
+
+          document.getElementById("optionsdata").style.width = "95%"
+          document.getElementById("popdata").style.fontSize = "26px";
+          document.getElementById("show").style.marginLeft = "150px";
+          document.getElementById("show").style.fontSize = "40px";
+      }
+      console.log(editor.getValue());
+      document.getElementById("btn").addEventListener("click", () => {
+        document.getElementById("output").innerText =
+          "reading your code, be patient.";
+              socket.emit("compile", { code: editor.getValue() });
+      });
+
+      socket.on("compile-click", (e) => {
+        fetch(`https://compiler.mantragohil.repl.co/run`, {
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          method: "POST",
+
+          body: JSON.stringify({
+            language: document.querySelector("select").value,
+            code: editor.getValue(),
+          }),
+
+        }).then((res) => {
+          res.json().then((rezz) => {
+            console.log(rezz);
+            socket.emit('filechange', rezz.name)
+            if (rezz.err !== undefined) {
+              if (rezz.err.stderr == undefined) {
+                document.getElementById("output").innerText = rezz.err;
+              } else {
+                document.getElementById("output").innerText =
+                  "compilation err: " + rezz.err.stderr;
+              }
+            } else if (rezz.output !== undefined) {
+              document.getElementById("output").innerText = rezz.output;
+            } else {
+              document.getElementById("output").innerText =
+                rezz.tip +
+                " --//-- " +
+                "Detected lang: " +
+                rezz.detectedLanguage;
+            }
+          });
+        });
+      });
+    </script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <script>
+
+      var socket = io();
+      var pageURL = $(location).attr("href").split("~")[1];
+      let username = prompt("enter name");
+      editor.session.setMode(`ace/mode/javascript`);
+
+      socket.on("joinThis", async (e) => {
+
+        await socket.emit("socketid");
+          await socket.emit("create", pageURL);
+            await socket.emit("joinRoom", { room: pageURL, user: username });
+              await console.log("in room: ", pageURL);
+
+      });
+
+      document.addEventListener("keyup", () => {
+
+        socket.emit("client", {
+          room: pageURL,
+          code: editor.getValue(),
+          language: document.querySelector("select").value,
+
+        });
+
+
+        if (document.querySelector("select").value == "js") {
+
+          editor.session.setMode(`ace/mode/javascript`);
+
+        }
+
+        if (document.querySelector("select").value == "cpp") {
+
+          editor.session.setMode(`ace/mode/python`);
+
+        }
+
+        if (document.querySelector("select").value == "py") {
+
+          editor.session.setMode(`ace/mode/python`);
+
+        }
+
+        if (document.querySelector("select").value == "c") {
+
+          editor.session.setMode(`ace/mode/python`);
+
+        }
+        
+      });
+      document.addEventListener("click", () => {
+        socket.emit("client", {
+          room: pageURL,
+          code: editor.getValue(),
+          language: document.querySelector("select").value,
+        });
+
+          if (document.querySelector("select").value == "js") {
+
+            editor.session.setMode(`ace/mode/javascript`);
+
+          }
+          if (document.querySelector("select").value == "cpp") {
+
+            editor.session.setMode(`ace/mode/python`);
+
+          }
+          if (document.querySelector("select").value == "py") {
+
+            editor.session.setMode(`ace/mode/python`);
+
+          }
+          if (document.querySelector("select").value == "c") {
+
+            editor.session.setMode(`ace/mode/python`);
+
+          }
+      });
+
+      socket.on("chat message", (msg) => {
+        console.log(msg);
+        editor.setValue(msg.code);
+        document.querySelector("select").value = msg.language;
+
+          if (msg.language == "js") {
+
+            editor.session.setMode(`ace/mode/javascript`);
+
+          }
+          if (msg.language == "cpp") {
+
+            editor.session.setMode(`ace/mode/cpp`);
+
+          }
+          if (msg.language == "py") {
+
+            editor.session.setMode(`ace/mode/python`);
+
+          }
+          if (msg.language == "c") {
+
+            editor.session.setMode(`ace/mode/c`);
+
+          }
+
+      });
+
+      document.getElementById("btn").addEventListener("click", () => {
+        socket.emit("compile", pageURL);
+        fetch(`https://compiler.mantragohil.repl.co/run`, {
+
+headers: {
+  "Content-Type": "application/json",
+},
+
+method: "POST",
+
+body: JSON.stringify({
+  language: document.querySelector("select").value,
+  code: editor.getValue(),
+}),
+
+}).then((res) => {
+res.json().then((rezz) => {
+  console.log(rezz);
+  socket.emit('filechange', rezz.name)
+  if (rezz.err !== undefined) {
+    if (rezz.err.stderr == undefined) {
+      document.getElementById("output").innerText = rezz.err;
+    } else {
+      document.getElementById("output").innerText =
+        "compilation err: " + rezz.err.stderr;
+    }
+  } else if (rezz.output !== undefined) {
+    document.getElementById("output").innerText = rezz.output;
+  } else {
+    document.getElementById("output").innerText =
+      rezz.tip +
+      " --//-- " +
+      "Detected lang: " +
+      rezz.detectedLanguage;
+  }
+});
+});
+      });
+      socket.on('yourfilenameis', (e)=>{
+        document.getElementById('filecolor').innerText = e;
+        console.log(e)
+      })
+
+      socket.on("compile-click", () => {
+        console.log("btn clicked");
+        document.getElementById("output").innerText =
+          "reading your code, be patient.";
+        console.log(`https://compiler.mantragohil.repl.co/run`);
+
+        fetch(`https://compiler.mantragohil.repl.co/run`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            language: document.querySelector("select").value,
+            code: editor.getValue(),
+          }),
+        }).then((res) => {
+          res.json().then((rezz) => {
+            console.log(rezz);
+            socket.emit('filechange', rezz.name)
+            if (rezz.err !== undefined) {
+
+              if (rezz.err.stderr == undefined) {
+
+                document.getElementById("output").innerText =
+                  "input err: " + rezz.err;
+              } else {
+
+                document.getElementById("output").innerText =
+                  "compilation err: " + rezz.err.stderr;
+
+              }
+            } else if (rezz.output !== undefined) {
+
+              document.getElementById("output").innerText = rezz.output;
+
+            } else {
+
+              document.getElementById("output").innerText =
+                rezz.tip +
+                " --//-- " +
+                "Detected lang: " +
+                rezz.detectedLanguage;
+
+                if (rezz.detectedLanguage == "Python") {
+
+                  document.querySelector("select").value = "py";
+
+                }
+                if (rezz.detectedLanguage == "JavaScript") {
+
+                  document.querySelector("select").value = "js";
+
+                }
+                if (rezz.detectedLanguage == "C++") {
+
+                  document.querySelector("select").value = "cpp";
+
+                }
+                if (rezz.detectedLanguage == "C") {
+
+                  document.querySelector("select").value = "c";
+
+                }
+            }
+          });
+        });
+      });
+
+    </script>
+  </body>
+</html>
