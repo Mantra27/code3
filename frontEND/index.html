@@ -1,105 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" type="image/png" href="/favicon.png"/>
+    <link rel="icon" type="image/png" href="/favicon.ico"/>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>express_code</title>
-  </head>
-  <body>
-    <label for="cars">Choose a lang of code:</label>
-    <select name="lang" id="lang">
-      <option>js</option>
-      <option>cpp</option>
-      <option>py</option>
-      <option>c</option>
-    </select>
-    <br>
-    👇 for newbie (choose a lang and press "get example code");
-    <input id="de" type="button" value="get example code" />
-    <textarea id="text" cols="60" rows="8"></textarea>
-    <h2 id="greet">output will be here;</h1>
-    <input id="btn" type="button" value="COMPILE" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="/script.js"></script>
-    <script>
-// document.getElementById('text').value = `write down your code here(PRESS TAB or click here)`
-// document.getElementById('text').addEventListener('focus', ()=>{
-//     if(document.getElementById('text').value == `write down your code here(PRESS TAB or click here)`){document.getElementById('text').value = ''}
-
-    
-// })
-  document.getElementById('de').addEventListener('click', ()=>{
-    if(document.getElementById('lang').value == 'js'){
-      document.getElementById('text').value = "for(let count=0; count<10; count++){\nconsole.log(`Hi, ${count}`)\n}"
-    }
-    if(document.getElementById('lang').value == 'cpp'){
-      document.getElementById('text').value = `#include<iostream>
-using namespace std;
-int main()
-{
-  for(int count=0; count<10; count++){
-	cout<<"Hello World "<<count<<endl;
-  }
-	return 0;
-}`
-    }
-    if(document.getElementById('lang').value == 'c'){
-      document.getElementById('text').value = `#include<stdio.h>
-int main()
-{
-  for(int count=0; count<10; count++){
-  printf("Hello World\\n");
-  }
-	return 0;
+    <title>lol</title>
+    <body>
+      <div id='rooms'>• Join room by entering room name.</div>
+    <textarea id="text" cols="20" rows="2"></textarea>
+    <input id="send" type="button" value="JOIN" /> 
+    <script src="/socket.io/socket.io.js"></script>
+<style>
+  body{
+    color: white;
+    background-color: #272822;
+    font-family: Hack, monospace;
 }
+  #send{font-family: Hack, monospace;
+    position: absolute;
+    font-size: 20px;
+    margin-top:10px;
+    margin-left:10px;
+  }
+  #text{font-family: Hack, monospace;
+    font-size: 20px;
+  }
+</style>
+    <script>
+        var socket = io();
+        document.getElementById('send').addEventListener('click', ()=>{
+          location.href = `/~${document.getElementById('text').value}`;
+        })
 
-`
-    }
-    if(document.getElementById('lang').value == 'py'){
-      document.getElementById('text').value = `for x in range(10):
-  print('Hi,', x)`
-    }
-  })
-      document.getElementById("btn").addEventListener("click", () => {
-        console.log("btn clicked");
-        document.getElementById("greet").innerText = 'reading your code, be patient'
-        document.getElementById("greet").style.color = 'black'
-        console.log(`https://compiler.mantragohil.repl.co/run`)
-    
-        fetch(
-          `https://compiler.mantragohil.repl.co/run`,
-          {
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            method: "POST",
-            body: JSON.stringify({language: document.getElementById('lang').value, code: document.getElementById('text').value})
-          }
-        ).then((res) => {
-          res.json().then((rezz) => {
-            console.log(rezz);
-            if(rezz.err !== undefined){
-              if(rezz.err.stderr == undefined){
-                document.getElementById("greet").innerText = 'input err: '+ rezz.err
-              }
-              else{
+        
 
-                document.getElementById("greet").innerText ='compilation err: '+ rezz.err.stderr
-              }
-              document.getElementById("greet").style.color = 'red'
-            }
-            else if(rezz.output !== undefined){
-              document.getElementById("greet").style.color = 'green'
-              document.getElementById("greet").innerText =rezz.output 
-            }
-            else{
-              document.getElementById("greet").innerText =rezz.tip +" --//-- "+ 'Detected lang: '+rezz.detectedLanguage
-            }
-          });
-        });
-      });
+        // socket.on('roomList', (e)=>{
+        //   console.log('rec listing') 
+        //   for(key in e){
+        // var createA = document.createElement('a');
+        // var createAText = document.createTextNode(`${e[key]}`);
+        // createA.setAttribute('href', `~${e[key]}`);
+        // createA.appendChild(createAText);
+        // var br = document.createElement("br");
+        // createA.appendChild(br)
+        // document.getElementById('rooms').appendChild(createA);
+        //   }
+        // })
     </script>
   </body>
 </html>
