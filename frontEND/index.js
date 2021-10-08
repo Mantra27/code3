@@ -1,74 +1,89 @@
 const express = require('express');
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
-const fs = require('fs');
-
-const PORT = 1000;
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/html.html');
+const PORT = 6969;
+const {genFiles} = require('./genFiles.js');
+const {execCPP} = require('./exec_modules/execCPP.js');
+const {execJS} = require('./exec_modules/execJS.js')
+const {execCH} = require('./exec_modules/execCH.js')
+const {execPY} = require('./exec_modules/execPY.js')
+const {execC} = require('./exec_modules/execC.js')
+const cors = require('cors');
+const detectLang = require('lang-detector');
+app.listen(PORT, ()=>{
+    console.log(`server online at port: ${PORT}`)
 });
 
-app.get('/:id', (req, res) => {
-  res.sendFile(__dirname + '/room.html')
+app.use(cors())
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
 
-  io.on('connection', (socket) => {
 
-    let pid = req.params.id.trim()
-    if(pid.includes('favicon.png')){
-      return;
+app.get("/", (req, res)=>{
+return res.json({goodbye: 'world'})
+})
+
+app.post('/run', async (req, res)=>{
+
+     console.log(req.body)
+    const [language, code] = [req.body.language, req.body.code];
+    if(code === undefined){
+        return res.json({err: "empty code module"})
     }
-    if(pid.includes('favicon.ico')){
-      return;
+    if(code === ''){
+        return res.json({err: "empty code module"})
     }
-    if(pid.includes('style.css')){
-      return;
+    if(code.trim() === ''){
+        return res.json({err: "empty code module"})
     }
-    else{
-      console.log("room name: ", pid)
-      socket.emit('joinThis', pid)
+    if(language=='js' && detectLang(code)!=='JavaScript'){
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
     }
-  })
-});
+    if(language=='cpp' && detectLang(code)!=='C++'){
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
+    }
+    if(language=='py' && detectLang(code)!=='Python'){
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
+    }
+    if(language=='c' && detectLang(code)!=='C'){
+        return res.json({tip: "Make sure your language and code are matching", detectedLanguage: detectLang(code)})
+    }
+    try{
+        let File = genFiles(language, code)
+        console.log(File)
+        if(language == 'js'){
+            let output = await execJS(File)
+            console.log(output)
+            return res.json({output: output, name: `${File}.js`})
+        }
+        if(language == 'cpp'){
+            let output = await execCPP(File)
+            console.log(output)
+            return res.json({output: output, name: `${File}.cpp`})
+        }
+        if(language == 'cs'){
+            let output = await execCH(File)
+            console.log(output)
+            return res.json({output: output, name: `${File}.cs`})
+        }
+        
+        if(language == 'py'){
+            let output = await execPY(File)
+            console.log(output)
+            return res.json({output: output, name: `${File}.py`})
+        }
+        
+        if(language == 'c'){
+            let output = await execC(File)
+            console.log(output)
+            return res.json({output: output, name: `${File}.c`})
+        }
+        
+        
+        
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
+    }
+    catch(err){
+        res.status(500).json({err})
+    }
 
-    socket.on('client', (msg)=>{
-      socket.to(msg.room).emit('chat message', msg)
-    })
-
-    socket.on('joinRoom', (room)=>{
-      socket.join(room.room)
-      console.log(room.user,'joined:', room.room)
-    })
-
-    socket.on('compile', (e)=>{
-      io.in(e).emit('compile-click')
-    })
-
-    socket.on('ip', (e)=>{
-      console.log(e.responseJSON)
-      logger(e.responseJSON.ipAddress);
-      socket.emit('iptext', e.responseJSON.ipAddress)
-    })
-
-    socket.on('filechange', (e)=>{
-        socket.emit('yourfilenameis', e)
-    })
-    
-
-  });
-  const logger = (ip)=>{
-    const fs = require('fs');
-    let data = fs.readFileSync('./log.txt','utf-8')
-    let info = `IP: ${ip}, TIME: ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}-${new Date().getDay()}/${new Date().getMonth()}/${new Date().getFullYear()}`
-    fs.writeFileSync(__dirname + '/log.txt', `${data} ${info}\n`)
-}
-
-server.listen(PORT, () => {
-  console.log(`listening on *:${PORT}`);
-});
-  
+})
