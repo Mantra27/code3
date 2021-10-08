@@ -1,8 +1,8 @@
 const {exec} = require('child_process');
-const execJS = (input) =>{
-    console.log(`cd code && node ${input}`)
+const execCPP = (input) =>{
+    console.log(`cd code && g++ ${input} -o ${input}.exe && ${input}.exe`)
     return new Promise((resolve, reject)=>{
-        exec(`cd code && node ${input}.js`, (error, stdout, stderr)=>{
+         exec(`cd code && g++ ${input}.cpp -o ${input}.exe && ./${input}.exe`, (error, stdout, stderr)=>{
             if(error) {
                 reject({error, stderr});
             }
@@ -15,5 +15,5 @@ const execJS = (input) =>{
     }
     
 module.exports = {
-    execJS,
+    execCPP,
 };
