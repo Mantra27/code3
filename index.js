@@ -9,6 +9,7 @@ const {execPY} = require('./exec_modules/execPY.js')
 const {execC} = require('./exec_modules/execC.js')
 const cors = require('cors');
 const detectLang = require('lang-detector');
+
 app.listen(PORT, ()=>{
     console.log(`server online at port: ${PORT}`)
 });
@@ -53,29 +54,29 @@ app.post('/run', async (req, res)=>{
         if(language == 'js'){
             let output = await execJS(File)
             console.log(output)
-            return res.json({output})
+            return res.json({output: output, name: `${File}.js`})
         }
         if(language == 'cpp'){
             let output = await execCPP(File)
             console.log(output)
-            return res.json({output})
+            return res.json({output: output, name: `${File}.cpp`})
         }
         if(language == 'cs'){
             let output = await execCH(File)
             console.log(output)
-            return res.json({output})
+            return res.json({output: output, name: `${File}.cs`})
         }
         
         if(language == 'py'){
             let output = await execPY(File)
-
-            return res.json({output})
+            console.log(output)
+            return res.json({output: output, name: `${File}.py`})
         }
         
         if(language == 'c'){
             let output = await execC(File)
             console.log(output)
-            return res.json({output})
+            return res.json({output: output, name: `${File}.c`})
         }
         
         
