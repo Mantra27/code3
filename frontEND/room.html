@@ -166,6 +166,8 @@ line-height: 75px;
           <a>generate.file.name("</a><a id='filecolor' class='infocolor'>compile once</a><a>")</a>
           <br>
           <a>user.ip("</a><a id='ipcolor' class='infocolor'></a><a>")</a>
+          <br>
+          <a id='members'>🟢 </a>
 
         </div>
         <a href="#" id="close" style="text-decoration: none">X</a>    
@@ -297,7 +299,12 @@ func();`);
 
       var socket = io();
       var pageURL = $(location).attr("href").split("~")[1];
-      let username = prompt("enter name");
+      let username = prompt("enter name")
+
+          if(username == null||undefined){
+              window.location.reload();
+          }
+      
       editor.session.setMode(`ace/mode/javascript`);
 
       socket.on("joinThis", async (e) => {
@@ -307,8 +314,16 @@ func();`);
             await socket.emit("joinRoom", { room: pageURL, user: username });
               await console.log("in room: ", pageURL);
 
-      });
+      });   
 
+      
+        socket.on('updateUsers', async (add)=>{
+          console.log(add)
+          console.log(`${add} was requested to join the room`)
+          document.getElementById('members').innerText = `${add}`
+      })
+
+     
       document.addEventListener("keyup", () => {
 
         socket.emit("client", {
